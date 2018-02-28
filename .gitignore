@@ -1,0 +1,9 @@
+.DS_Store
+node_modules/
+dist/
+2018/
+crawler/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.vscode/
