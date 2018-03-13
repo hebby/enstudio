@@ -16,17 +16,22 @@ const imgError = require('./assets/imgs/img-error.png')
 const imgLoading = require('./assets/imgs/load-s.gif')
 
 // 发布时修改
-var isDebug = false
-
-var baseUploads = '/uploads'
-var baseApiUrl = '/api'
+const isDebug = true
+let baseConfig = {
+  baseUploads: '/uploads',
+  baseApiUrl: '/api'
+}
 if (isDebug) {
-  baseApiUrl = `${location.protocol}//${location.hostname}:3000`
-  baseUploads = `${location.protocol}//${location.hostname}:8082`
+  const local = window.location
+  baseConfig = {
+    baseApiUrl: `${local.protocol}//${local.hostname}:3000`,
+    baseUploads: `${local.protocol}//${local.hostname}:8082`
+  }
 }
 
+// 更改axios默认设置
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
-axios.defaults.baseURL = baseApiUrl
+axios.defaults.baseURL = baseConfig.baseApiUrl
 Vue.prototype.$ajax = axios
 
 // 图片懒加载设置
@@ -38,37 +43,8 @@ Vue.use(vueLazyload, {
 })
 
 // 图片轮播
-Vue.use(VueAwesomeSwiper, /* { default global options } */)
-
-// Vue.config.productionTip = false
-Vue.prototype.pictureBaseUrl = baseUploads
-
-router.beforeEach((to, from, next) => {
-  let navs = [{url: '/', name: '首页'}]
-  let urlName = to.name
-  if (urlName === 'about') {
-    navs.push({url: '', name: to.meta.title})
-  } else if (urlName === 'search') {
-    navs.push({url: '', name: to.query.q})
-  } else if (urlName === 'index') {
-    navs = []
-  } else if (urlName === 'GoodsList') {
-    if (to.params.name === 'recommend') {
-      navs.push({url: '', name: '推荐'}) // 商品
-    } else if (to.params.name === 'hot') {
-      navs.push({url: '', name: '热门'}) // 商品
-    }
-  }
-  if (navs.length !== 1) {
-    store.commit('setBreadCrumbNav', navs)
-    store.commit('setCurrentMenu', {
-      index: -2,
-      name: '',
-      url: '/'
-    })
-  }
-  next()
-})
+Vue.use(VueAwesomeSwiper)
+Vue.prototype.pictureBaseUrl = baseConfig.baseUploads
 
 /* eslint-disable no-new */
 new Vue({

@@ -10,7 +10,6 @@
         </div>
         <section class="container">
           <router-view></router-view> 
-          <!-- :key="key" -->
         </section>
       </div>
     </main>
@@ -26,9 +25,6 @@ import breadCrumbNav from './components/bread-crumb-nav.vue'
 export default {
   name: 'app',
   computed: {
-    // key () {
-    //   return this.$route.name !== undefined ? this.$route.name + new Date() : this.$route + new Date()
-    // },
     breadCrumbs () {
       return this.$store.state.breadCrumbNav || []
     }

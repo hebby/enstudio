@@ -10,21 +10,26 @@ import 'element-ui/lib/theme-chalk/index.css'
 import VCharts from 'v-charts'
 
 // 发布时修改
-var isDebug = false
-
-var baseUploads = '/uploads'
-var baseApiUrl = '/api'
+const isDebug = true
+let baseConfig = {
+  baseUploads: '/uploads',
+  baseApiUrl: '/api'
+}
 if (isDebug) {
-  baseApiUrl = `${location.protocol}//${location.hostname}:3000`
-  baseUploads = `${location.protocol}//${location.hostname}:8082`
+  const local = window.location
+  baseConfig = {
+    baseApiUrl: `${local.protocol}//${local.hostname}:3000`,
+    baseUploads: `${local.protocol}//${local.hostname}:8082`
+  }
 }
 
+// 更改axios默认设置
 Axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
-Axios.defaults.baseURL = 'baseApiUrl'
+Axios.defaults.baseURL = baseConfig.baseApiUrl
 Vue.prototype.$ajax = Axios
 
-Vue.prototype.pictureBaseUrl = baseUploads
-// Vue.config.productionTip = false
+// 自定义项
+Vue.prototype.pictureBaseUrl = baseConfig.baseUploads
 
 Vue.use(ElementUI)
 Vue.use(VCharts)
