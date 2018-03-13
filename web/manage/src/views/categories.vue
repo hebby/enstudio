@@ -4,20 +4,23 @@
       <el-button size="mini" type="success"  @click="cateVisible = true">添加一级分类</el-button>
     </div>
     <section class="cate-section">
-      <div v-for="item in cateTree" :key="item['cate_id']">
+      <div v-for="(item, rootIndex) in cateTree" :key="item['cate_id']">
         <div class="cate-leve-wrap">
           <div class="cate-leve-1">{{item.name}}({{item.alias}})</div>
           <div>
+            <el-button @click="sort('up', cateTree, rootIndex)" size="mini" type="info" v-show="rootIndex">上移</el-button>
+            <el-button @click="sort('down', cateTree, rootIndex)" size="mini" type="info" v-show="rootIndex !== cateTree.length-1">下移</el-button>
             <el-button @click="setChildCate('add', item)" size="mini" type="success">添加子类</el-button>
             <el-button @click="setChildCate('update', item)" size="mini" type="primary">编辑</el-button>
           </div>
         </div>
         <template v-if="item.children">
-          <div v-for="child in item.children" :key="child['cate_id']">
+          <div v-for="(child, cIndex) in item.children" :key="child['cate_id']">
             <div class="cate-leve-wrap sub-cate-line">
               <div class="cate-leve-1">{{child.name}}({{child.alias}})</div>
               <div>
-                <!-- <el-button @click="setChildCate('add', child)" size="mini" type="success">添加子类</el-button> -->
+                <el-button @click="sort('up', item.children, cIndex)" size="mini" type="info" v-show="cIndex">上移</el-button>
+                <el-button @click="sort('down', item.children, cIndex)" size="mini" type="info" v-show="cIndex !== item.children.length-1">下移</el-button>
                 <el-button @click="setChildCate('update', child, item)" size="mini" type="primary">编辑</el-button>
               </div>
             </div>
@@ -144,6 +147,57 @@
         }
         this.cateVisible = true
       },
+      request (url, params, fn) {
+        let self = this
+        self.$ajax.post(url, params)
+        .then(function (response) {
+          let resData = response.data
+          if (resData.code) {
+            self.$message.error(resData.error || '')
+            return
+          }
+          self.$message({
+            message: '操作成功!',
+            type: 'success'
+          })
+          // 更新类型列表
+          self.loadList()
+          fn instanceof Function && fn()
+        }).catch(function (error) {
+          console.log(error)
+        })
+      },
+      sort (type, data, index) {
+        if (!Array.isArray(data)) {
+          return
+        }
+        let isUp = type === 'up'
+        let sortInfo
+        if (isUp) {
+          sortInfo = {
+            upId: data[index].cate_id,
+            upSort: index - 1,
+            downId: data[index - 1].cate_id,
+            downSort: index
+          }
+        } else {
+          sortInfo = {
+            upId: data[index + 1].cate_id,
+            upSort: index,
+            downId: data[index].cate_id,
+            downSort: index + 1
+          }
+        }
+        console.log('sortInfo', sortInfo)
+        if (index < 0 || index >= data.length) {
+          return
+        }
+        let params = common.convertUrlParams({
+          Categories: JSON.stringify(sortInfo)
+        })
+
+        this.request('/manage-categorie/sort/', params)
+      },
       submit () {
         let self = this
         self.$refs['cateInfo'].validate((valid) => {
@@ -160,25 +214,27 @@
           let params = common.convertUrlParams({
             Categories: JSON.stringify(cateInfo)
           })
-          let reqUrl = this.selectCateId > 0 ? ('/manage-categorie/' + this.selectCateId + '/') : '/manage-categorie/'
-          self.$ajax.post(reqUrl, params)
-          .then(function (response) {
-            let resData = response.data
-            if (resData.code) {
-              self.$message.error(resData.error || '')
-              return
-            }
-            self.$message({
-              message: '数据提交成功！',
-              type: 'success'
-            })
-            // 更新类型列表
-            self.loadList()
+          let reqUrl = this.selectCateId > 0 ? ('/manage-categories/' + this.selectCateId + '/') : '/manage-categorie/'
+          self.request(reqUrl, params, () => {
             self.cateVisible = false
           })
-          .catch(function (error) {
-            console.log(error)
-          })
+          // self.$ajax.post(reqUrl, params)
+          // .then(function (response) {
+          //   let resData = response.data
+          //   if (resData.code) {
+          //     self.$message.error(resData.error || '')
+          //     return
+          //   }
+          //   self.$message({
+          //     message: '数据提交成功！',
+          //     type: 'success'
+          //   })
+          //   // 更新类型列表
+          //   self.loadList()
+          //   self.cateVisible = false
+          // }).catch(function (error) {
+          //   console.log(error)
+          // })
         })
       }
     }
@@ -205,5 +261,8 @@
 }
 .cate-section{
   font-size: .9rem;
+}
+.el-button--mini, .el-button--mini.is-round {
+    padding: 7px 5px;
 }
 </style>

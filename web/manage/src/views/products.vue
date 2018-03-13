@@ -2,7 +2,7 @@
 <div>
   <div class="tb-filter">
     <el-select class="form-ipt" v-model="filter.postStartDate" placeholder="请选择时间" @change="handleFilterChange">
-      <el-option :label="date.name" v-for="(date, index) in rangDates" :key="index"  :value="date.value"></el-option>
+      <el-option :label="date.name" v-for="(date, index) in rangDates" :key="index" :value="date.value"></el-option>
     </el-select>
     <el-select class="form-ipt" v-model="filter.isRecommend" placeholder="请选择推荐状态" @change="handleFilterChange">
       <el-option label="推荐不限" value=""></el-option>
@@ -91,11 +91,11 @@
 </style>
 
 <script>
-  const PageCount = 10
-  let baseUrl = `${location.origin}/static/uploads`
+  const PageCount = 8
   export default {
     data () {
       let self = this
+      let basePictureUrl = this.pictureBaseUrl
       let endDates = [
         {name: '时间不限', value: ''},
         {name: '一月内', value: self._getRangeDate(30)},
@@ -115,7 +115,7 @@
         currentPage: 1,
         total: 0,
         pageSize: PageCount,
-        baseUrl: baseUrl,
+        baseUrl: basePictureUrl,
         allCategories: []
       }
     },
@@ -151,7 +151,7 @@
       getGoods () {
         let self = this
         let filters = self.filter
-        let startDate = self.postStartDate ? self.postStartDate[0].getTime() : ''
+        let startDate = self.filter.postStartDate ? self.filter.postStartDate.getTime() : ''
         let params = {
           filters: JSON.stringify({
             cateIds: filters.categories,
@@ -180,10 +180,9 @@
       },
       handleCurrentChange (curPage) {
         this.currentPage = curPage
-        this.getImgList()
+        this.getGoods()
       },
       switchToModify (item) {
-        // this.$store.commit('setEditProductInfo', this.goods)
         this.$router.push('/product/' + item.id)
       }
     }

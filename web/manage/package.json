@@ -12,10 +12,12 @@
   },
   "dependencies": {
     "axios": "^0.17.1",
+    "echarts": "^4.0.4",
     "element-ui": "^2.0.11",
+    "v-charts": "^1.16.2",
     "vue": "^2.5.13",
     "vue-axios": "^2.0.2",
-    "vue-router": "^2.6.0",
+    "vue-router": "^2.8.1",
     "vuex": "^2.3.1"
   },
   "devDependencies": {

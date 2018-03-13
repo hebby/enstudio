@@ -80,7 +80,7 @@ export default {
       }]
     }
     let [start, end] = getDefaultDate(30)
-    let baseUrl = `${location.origin}/static/uploads`
+    let basePictureUrl = this.pictureBaseUrl
     return {
       imgList: [],
       selectedImgs: [],
@@ -90,7 +90,7 @@ export default {
       filterIsUsed: false,
       filterDateRange: [start, end],
       dateShortcuts: dateShortcuts,
-      baseUrl: baseUrl
+      baseUrl: basePictureUrl
     }
   },
   beforeCreate () {

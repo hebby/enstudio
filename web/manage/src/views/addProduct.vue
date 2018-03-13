@@ -21,7 +21,7 @@
     <el-form-item label="商品名称" prop="title" required>
       <el-input v-model="productInfo.title"></el-input>
     </el-form-item>
-    <el-form-item label="商品描述">
+    <el-form-item label="商品描述" prop="description">
       <el-input v-model="productInfo.description" type="textarea" :rows="4"></el-input>
     </el-form-item>
     <el-form-item label="封面" required>
@@ -40,10 +40,10 @@
         </li>
       </ul>
     </el-form-item>
-    <el-form-item label="设推荐">
+    <el-form-item label="设推荐" prop="isRecommend">
       <el-switch v-model="productInfo.isRecommend"></el-switch>
     </el-form-item>
-    <el-form-item label="禁用">
+    <el-form-item label="禁用" prop="isDisabled">
       <el-switch v-model="productInfo.isDisabled"></el-switch>
     </el-form-item>
     <el-form-item>
@@ -118,6 +118,7 @@
   import choosePictures from '../components/choose-pictures.vue'
   export default {
     data () {
+      let basePictureUrl = this.pictureBaseUrl
       return {
         pictureDialog: false,
         productInfo: {
@@ -133,7 +134,7 @@
             { required: true, message: '请输入标题！', trigger: 'blur' }
           ]
         },
-        baseUrl: `${location.origin}/static/uploads`,
+        baseUrl: basePictureUrl,
         categories: [],
         checkedCategories: [],
         editOrgInfo: {
@@ -142,9 +143,6 @@
         },
         isNeedUpdatePic: 0
       }
-    },
-    components: {
-      choosePictures
     },
     beforeCreate () {
       let breadNavs = [
@@ -158,17 +156,12 @@
       let proId = this.$route.params.proid
       if (proId) {
         this.setEditInfo(proId)
-      } else {
-        if (this.productInfo.id) {
-          this.clear()
-        }
-        this.reset()
       }
     },
-    computed: {
-      productPics () {
-        return this.$store.state.productPictures || []
-      }
+    beforeRouteLeave (to, from, next) {
+      this.clear()
+      this.reset()
+      next()
     },
     methods: {
       _setModelInfoCallback (products) {
@@ -202,26 +195,30 @@
       setEditInfo (productId) {
         let self = this
         self.productInfo.id = productId
-        self.$ajax.get('/manage-products/' + productId)
-        .then(function (response) {
-          if (response.data.data) {
-            self._setModelInfoCallback(response.data.data)
+        self.request(self.$ajax.get, {
+          url: '/manage-products/' + productId,
+          callback: function (data) {
+            self._setModelInfoCallback(data)
           }
         })
-        .catch(function (error) {
+      },
+      request (reqFn, data) {
+        reqFn(data.url, data.params || '')
+        .then(function (response) {
+          if (response && response.data.data) {
+            data.callback(response.data.data)
+          }
+        }).catch(function (error) {
           console.log(error)
         })
       },
       _getCategories () {
         let self = this
-        self.$ajax.get('/manage-categories/')
-        .then(function (response) {
-          if (response && Array.isArray(response.data.data)) {
-            self.categories = response.data.data
+        self.request(self.$ajax.get, {
+          url: '/manage-categories/',
+          callback: function (data) {
+            self.categories = data
           }
-        })
-        .catch(function (error) {
-          console.log(error)
         })
       },
       handleRemoveItem (index) {
@@ -231,52 +228,61 @@
         this.productInfo.mainPictureUrl = item.url
         console.log(this.productInfo.mainPictureUrl)
       },
-      submit (isGoon) {
-        let self = this
-        self.$refs['productInfo'].validate((valid) => {
+      formValidate (fn) {
+        this.$refs['productInfo'].validate((valid) => {
           if (!valid) {
             return false
           }
-          let selectedPicIds = self.productPics.map(function (item) {
-            return item.id
-          })
-          let productParams = {
-            title: self.productInfo.title,
-            description: self.productInfo.description,
-            categories: self.checkedCategories,
-            mainPictureUrl: self.productInfo.mainPictureUrl,
-            productPics: selectedPicIds,
-            recommend: self.productInfo.isRecommend ? 1 : 0,
-            isDisabled: self.productInfo.isDisabled ? 1 : 0
-          }
-          let submitUrl = '/manage-product/'
-          if (self.productInfo.id) {
-            productParams.id = self.productInfo.id
-            productParams.orgInfo = self.editOrgInfo
-            submitUrl += productParams.id + '/'
-          }
-          let params = common.convertUrlParams({
-            goods: JSON.stringify(productParams)
-          })
-          console.log('productParams', params.get('goods'))
-          self.$ajax.post(submitUrl, params)
-          .then(function (response) {
-            let resData = response.data
-            if (resData.code) {
-              self.$message.error(resData.error || '')
-              return
+          fn()
+        })
+      },
+      getParams () {
+        let self = this
+        let selectedPicIds = self.productPics.map(function (item) {
+          return item.id
+        })
+        let productParams = {
+          title: self.productInfo.title,
+          description: self.productInfo.description,
+          categories: self.checkedCategories,
+          mainPictureUrl: self.productInfo.mainPictureUrl,
+          productPics: selectedPicIds,
+          recommend: self.productInfo.isRecommend ? 1 : 0,
+          isDisabled: self.productInfo.isDisabled ? 1 : 0
+        }
+        let submitUrl = '/manage-product/'
+        if (self.productInfo.id) {
+          productParams.id = self.productInfo.id
+          productParams.orgInfo = self.editOrgInfo
+          submitUrl += productParams.id + '/'
+        }
+        let params = common.convertUrlParams({
+          goods: JSON.stringify(productParams)
+        })
+        return {
+          params: params,
+          url: submitUrl
+        }
+      },
+      submit (isGoon) {
+        let self = this
+        self.formValidate(() => {
+          let result = self.getParams()
+          self.request(self.$ajax.post, {
+            url: result.url,
+            params: result.params,
+            callback: function (data) {
+              self.$message({
+                message: '提交成功！',
+                type: 'success'
+              })
+              // 清空数据
+              self.reset()
+              // 继续添加
+              if (!isGoon) {
+                self.$router.push('/products/')
+              }
             }
-            self.$message({
-              message: '提交成功！',
-              type: 'success'
-            })
-            self.reset()
-            if (!isGoon) {
-              self.$router.push('/products/')
-            }
-          })
-          .catch(function (error) {
-            console.log(error)
           })
         })
       },
@@ -297,9 +303,11 @@
         this.checkedCategories = []
       },
       reset () {
-        this.$refs['productInfo'].resetFields()
         // 清空信息
         this.$store.commit('setProductPictures', [])
+        this.productInfo.mainPictureUrl = ''
+        this.$refs['productInfo'].resetFields()
+        this.checkedCategories = []
       },
       handleDialogClose (done) {
         done()
@@ -310,6 +318,14 @@
       onDialogClose () {
         this.pictureDialog = false
       }
+    },
+    computed: {
+      productPics () {
+        return this.$store.state.productPictures || []
+      }
+    },
+    components: {
+      choosePictures
     }
   }
 </script>

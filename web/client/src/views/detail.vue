@@ -2,24 +2,31 @@
   <div class="good-detail-box">
     <img :src="baseUrl + goodInfo.mainPictureUrl" alt="">    
     <article>
-      <h1>{{goodInfo.title}}</h1>
-      <p>
+      <h1 class="detail-main-title">{{goodInfo.title}}</h1>
+      <p class="detail-description">
         {{goodInfo.description}}
       </p>
       <div>
-        <img v-for="(item, index) in goodInfo.pictures" :key="index" :src="baseUrl + item.url" alt="">
+        <img v-for="(item, index) in goodInfo.pictures" :key="index" v-lazy="baseUrl + item.url" alt="">
       </div>
     </article>
   </div>
 </template>
 
 <script>
+import mixin from '../mixin/index'
 export default {
   name: 'detail',
+  mixins: [mixin],
   data () {
     let basePictureUrl = this.pictureBaseUrl
     return {
-      goodInfo: null,
+      goodInfo: {
+        mainPictureUrl: '',
+        title: '',
+        description: '',
+        pictures: []
+      },
       baseUrl: basePictureUrl
     }
   },
@@ -42,12 +49,7 @@ export default {
     getDetail () {
       let pid = this.$route.params.id
       let self = this
-      self.$ajax.get('/goods/detail/' + pid)
-      .then(function (response) {
-        if (!response || response.data.error) {
-          self.$router.replace({name: 'error'})
-          return
-        }
+      self.$get('/goods/detail/' + pid, (response) => {
         if (!response || !response.data.data.hasOwnProperty('title')) {
           if (!self.goodInfo) {
             self.goodInfo = null
@@ -56,11 +58,9 @@ export default {
           }
         } else {
           self.goodInfo = response.data.data
+          self.goodInfo.mainPictureUrl = self.goodInfo.mainPictureUrl.replace('/thumbnail-en-studio-', '/en-studio-')
           self.setCurrentMenu(self.goodInfo.title)
         }
-      }).catch(function (error) {
-        console.log(error)
-        self.$router.replace({name: 'error'})
       })
     }
   }
@@ -78,5 +78,21 @@ export default {
   max-width: 100%;
   width: auto;
   height: auto;
+}
+.detail-main-title{
+  line-height: 2;
+  margin: 0 auto;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 90%;
+  text-align: center;
+  margin-top: 30px;
+}
+.detail-description{
+  line-height: 1.8;
+  text-align: left;
+  width: 90%;
+  margin: 10px auto 30px;
 }
 </style>

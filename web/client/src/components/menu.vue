@@ -1,13 +1,16 @@
 <template>
   <ul class="en-nav">
     <li>
-      <a title='推荐商品' @click='onMenuClick("/goods/recommend", "推荐", -1)' 
+      <a title='推荐' @click='onMenuClick("/goods/recommend", "推荐", -1)' 
         :class="currentMenu.alias === 'recommend' ? 'nav-selected' : ''">推荐</a>
     </li>
     <li v-for="(m,index) in menus" :key="index">
       <a :title='m.name' @click='onMenuClick(m.alias, m.name, index)' 
         :class="currentMenu.alias === m.alias ? 'nav-selected' : ''">{{m.name}}</a>
     </li>
+    <!-- <li>
+      <router-link :to="{ name: 'about'}">联系我们</router-link>
+    </li> -->
   </ul>
 </template>
 

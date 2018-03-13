@@ -2,13 +2,7 @@
   <div class="goods-list">
     <div class="good-item" v-for="(item, index) in goods" :key="index" @click="handleItemOpen(item)">
       <div class="good-img-wrap">
-        <vue-lazy-load-img 
-            mode="default"
-            :time="300"
-            :done="true">
-            <!-- <img src="./images/default.png" data-src="./images/test.png" alt=""> -->
-            <img src="../assets/imgs/load-s.gif" :data-src="baseUrl + item.mainPictureUrl" :alt="item.title">
-        </vue-lazy-load-img>
+        <img v-lazy="baseUrl + item.mainPictureUrl" :alt="item.title">
       </div>
       <div class="good-title"><a>{{item.title}}</a></div>
     </div>

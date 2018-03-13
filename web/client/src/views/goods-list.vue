@@ -69,7 +69,7 @@ export default {
       if (gcate === 'recommend' || gcate === 'hot') {
         this.$store.commit('setBreadCrumbNav', [
           {url: '/', name: '首页'},
-          {url: '', name: gcate === 'recommend' ? '推荐商品' : '热门商品'}
+          {url: '', name: gcate === 'recommend' ? '推荐' : '热门'} // 商品
         ])
         this.$store.commit('setCurrentMenu', {
           alias: gcate === 'recommend' ? gcate : '',

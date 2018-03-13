@@ -12,10 +12,10 @@
   },
   "dependencies": {
     "axios": "^0.17.1",
-    "lazy-load-img": "^3.0.6",
     "vue": "^2.5.13",
+    "vue-awesome-swiper": "^3.1.3",
     "vue-axios": "^2.0.2",
-    "vue-lazy-load-img": "0.0.3",
+    "vue-lazyload": "^1.2.1",
     "vue-router": "^2.8.1",
     "vuex": "^2.5.0"
   },

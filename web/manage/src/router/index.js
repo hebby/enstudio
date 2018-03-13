@@ -9,6 +9,9 @@ import AddPictures from '@/views/addPictures'
 import Categories from '@/views/categories'
 import products from '@/views/products'
 import addProduct from '@/views/addProduct'
+import banners from '@/views/banners'
+import addBanner from '@/views/addBanner'
+import NotFoundComponent from '@/views/404'
 import store from '../store'
 import myCookie from '../lib/cookie'
 
@@ -65,13 +68,33 @@ const router = new Router({
       path: '/product/:proid',
       name: 'addProduct',
       component: addProduct
+    },
+    {
+      path: '/banners',
+      name: 'banners',
+      component: banners
+    },
+    {
+      path: '/banner/:bannerId',
+      name: 'addBanner',
+      component: addBanner
+    },
+    {
+      path: '/banners/add',
+      name: 'addBanner',
+      component: addBanner
+    },
+    {
+      path: '*',
+      name: '404',
+      component: NotFoundComponent
     }
   ]
 })
 
 router.beforeEach((to, from, next) => {
   let hasFrame = true
-  if (to.name === 'login') {
+  if (to.name === 'login' || to.name === '404') {
     hasFrame = false
   } else {
     if (!myCookie.get('uid')) {

@@ -8,7 +8,7 @@
       <div class="container nav-search-container">
         <my-menu></my-menu>
         <div class="search-container">
-          <input class="search-ipt" id="searchIpt" ref="searchIpt" type="text" v-model="keyword" @keyup.enter="handleSearch()" placeholder="请输入商品关键字" autocomplete='off'>
+          <input class="search-ipt" id="searchIpt" ref="searchIpt" type="text" v-model="keyword" @keyup.enter="handleSearch()" placeholder="请输入关键字" autocomplete='off'>
           <a class="search-link" @click="handleSearch()">
               <svg version="1.1" x="0px" y="0px" viewBox="0 0 7.2 7.2" xml:space="preserve" aria-labelledby="search-form0" role="img" class="currentColor">
               <title>搜索</title>
@@ -23,7 +23,7 @@
       </div>
     </nav>
     <div class="m-search-box" ref="mSearchBox">
-       <input class="min-search-ipt"  id="mSearchIpt" type="text" v-model="keyword" @keyup.enter="openMiniSearch()" placeholder="请输入商品关键字" autocomplete='off'>
+       <input class="min-search-ipt"  id="mSearchIpt" type="text" v-model="keyword" @keyup.enter="openMiniSearch()" placeholder="请输入关键字" autocomplete='off'>
        <button class="search-btn" @click="openMiniSearch">搜索</button>
     </div>
 </div>

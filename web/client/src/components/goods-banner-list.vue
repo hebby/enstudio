@@ -1,6 +1,6 @@
 <template>
   <section>
-    <div class="cate-bar" v-if="goods.data && goods.data.length > 0">
+    <div class="cate-bar" v-if="goods.data.length > 0">
       <div class="bar-title">{{goods.bar.name}}</div>
       <div>
         <a @click="switchPage(goods.bar)" class="bar-more">
@@ -17,7 +17,17 @@
 import goodsThumbnail from '../components/goods-thumbnail.vue'
 export default {
   name: 'goods-banner-list',
-  props: ['goods'],
+  props: {
+    goods: {
+      type: Object,
+      default: function () {
+        return {
+          bar: {},
+          data: []
+        }
+      }
+    }
+  },
   components: {
     goodsThumbnail
   },

@@ -4,7 +4,8 @@
       <goods-banner-list v-for="(goods, index) in categorys" :key="index" :goods="goods"></goods-banner-list>
     </template>
     <div v-else class="text-no-result">
-      暂无商品
+      暂无数据
+      <!-- 商品 -->
     </div>
   </div>
 </template>
